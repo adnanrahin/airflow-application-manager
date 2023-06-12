@@ -94,19 +94,19 @@ public class DagEntity {
 
     @Basic
     @Column(name = "next_dagrun", nullable = true)
-    private Object nextDagrun;
+    private String nextDagrun;
 
     @Basic
     @Column(name = "next_dagrun_data_interval_start", nullable = true)
-    private Object nextDagrunDataIntervalStart;
+    private String nextDagrunDataIntervalStart;
 
     @Basic
     @Column(name = "next_dagrun_data_interval_end", nullable = true)
-    private Object nextDagrunDataIntervalEnd;
+    private String nextDagrunDataIntervalEnd;
 
     @Basic
     @Column(name = "next_dagrun_create_after", nullable = true)
-    private Object nextDagrunCreateAfter;
+    private String nextDagrunCreateAfter;
 
     public String getDagId() {
         return dagId;
@@ -280,7 +280,7 @@ public class DagEntity {
         return nextDagrun;
     }
 
-    public void setNextDagrun(Object nextDagrun) {
+    public void setNextDagrun(String nextDagrun) {
         this.nextDagrun = nextDagrun;
     }
 
@@ -288,23 +288,23 @@ public class DagEntity {
         return nextDagrunDataIntervalStart;
     }
 
-    public void setNextDagrunDataIntervalStart(Object nextDagrunDataIntervalStart) {
+    public void setNextDagrunDataIntervalStart(String nextDagrunDataIntervalStart) {
         this.nextDagrunDataIntervalStart = nextDagrunDataIntervalStart;
     }
 
-    public Object getNextDagrunDataIntervalEnd() {
+    public String getNextDagrunDataIntervalEnd() {
         return nextDagrunDataIntervalEnd;
     }
 
-    public void setNextDagrunDataIntervalEnd(Object nextDagrunDataIntervalEnd) {
+    public void setNextDagrunDataIntervalEnd(String nextDagrunDataIntervalEnd) {
         this.nextDagrunDataIntervalEnd = nextDagrunDataIntervalEnd;
     }
 
-    public Object getNextDagrunCreateAfter() {
+    public String getNextDagrunCreateAfter() {
         return nextDagrunCreateAfter;
     }
 
-    public void setNextDagrunCreateAfter(Object nextDagrunCreateAfter) {
+    public void setNextDagrunCreateAfter(String nextDagrunCreateAfter) {
         this.nextDagrunCreateAfter = nextDagrunCreateAfter;
     }
 
