@@ -9,45 +9,53 @@ public class LogEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Long id;
+
     @Basic
     @Column(name = "dttm", nullable = true)
-    private Object dttm;
+    private String dttm;
+
     @Basic
     @Column(name = "dag_id", nullable = true, length = 250)
     private String dagId;
+
     @Basic
     @Column(name = "task_id", nullable = true, length = 250)
     private String taskId;
+
     @Basic
     @Column(name = "map_index", nullable = true)
     private Integer mapIndex;
+
     @Basic
     @Column(name = "event", nullable = true, length = 30)
     private String event;
+
     @Basic
     @Column(name = "execution_date", nullable = true)
-    private Object executionDate;
+    private String executionDate;
+
     @Basic
     @Column(name = "owner", nullable = true, length = 500)
     private String owner;
+
     @Basic
     @Column(name = "extra", nullable = true, length = -1)
     private String extra;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Object getDttm() {
+    public String getDttm() {
         return dttm;
     }
 
-    public void setDttm(Object dttm) {
+    public void setDttm(String dttm) {
         this.dttm = dttm;
     }
 
@@ -83,11 +91,11 @@ public class LogEntity {
         this.event = event;
     }
 
-    public Object getExecutionDate() {
+    public String getExecutionDate() {
         return executionDate;
     }
 
-    public void setExecutionDate(Object executionDate) {
+    public void setExecutionDate(String executionDate) {
         this.executionDate = executionDate;
     }
 
