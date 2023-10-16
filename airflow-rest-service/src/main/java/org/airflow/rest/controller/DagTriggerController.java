@@ -3,13 +3,10 @@ package org.airflow.rest.controller;
 
 import org.airflow.rest.services.DagTriggerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/trigger/dag")
+@RequestMapping("/api/trigger/dag")
 public class DagTriggerController {
 
     private final DagTriggerService dagTriggerService;
@@ -19,9 +16,10 @@ public class DagTriggerController {
         this.dagTriggerService = dagTriggerService;
     }
 
-    @GetMapping("/trigger-dag")
-    public String triggerDag() {
-        dagTriggerService.triggerDag();
+    @GetMapping(path = "dagId/{uri}")
+    public String triggerDag(@PathVariable String uri) {
+        dagTriggerService.triggerDag(uri);
         return "DAG Triggered!";
     }
+
 }

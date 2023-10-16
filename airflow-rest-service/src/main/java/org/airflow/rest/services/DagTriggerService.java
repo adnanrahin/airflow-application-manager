@@ -2,6 +2,6 @@ package org.airflow.rest.services;
 
 public interface DagTriggerService {
 
-    void triggerDag();
+    void triggerDag(String dagId);
 
 }

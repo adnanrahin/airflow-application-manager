@@ -13,9 +13,9 @@ import java.util.Base64;
 public class DagTriggerServiceImpl implements DagTriggerService {
 
     @Override
-    public void triggerDag() {
+    public void triggerDag(String dagId) {
 
-        final String airflowApiUrl = "http://localhost:18080/api/v1/dags/file_count_dag/dagRuns";
+        String airflowApiUrl = "http://localhost:18080/api/v1/dags/{dagId}/dagRuns";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -26,6 +26,9 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class);
+        System.out.println(request);
+
+        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
     }
+
 }
