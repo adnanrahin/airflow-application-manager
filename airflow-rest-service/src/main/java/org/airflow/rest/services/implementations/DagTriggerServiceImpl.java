@@ -4,17 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.airflow.rest.services.DagTriggerService;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DagTriggerServiceImpl implements DagTriggerService {
@@ -25,6 +24,7 @@ public class DagTriggerServiceImpl implements DagTriggerService {
     @Override
     public void addToTheQueue(String dagId) throws JsonProcessingException, InterruptedException {
         dagRunQueue.add(dagId);
+        System.out.println("ADD METHOD: " + dagRunQueue.size());
         queueProcess();
     }
 
@@ -36,8 +36,14 @@ public class DagTriggerServiceImpl implements DagTriggerService {
                 String dagId = dagRunQueue.poll();
                 if (!isDagRunning(dagId)) {
                     triggerDag(dagId);
+                }else {
+                    // Wait for the previous DAG run to complete before triggering the next one
+                    try {
+                        TimeUnit.SECONDS.sleep(5); // Adjust the sleep duration as needed
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-                Thread.sleep(1000);
             }
             isDagProcessing = false;
         }
@@ -59,7 +65,7 @@ public class DagTriggerServiceImpl implements DagTriggerService {
 
         System.out.println(request);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
+//        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
 
@@ -92,9 +98,10 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
+        /*        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);*/
 
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
+        ResponseEntity<String> responseEntity = restTemplate
+                .exchange(airflowApiUrl, HttpMethod.GET, request, String.class, Map.of("dagId", dagId));
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = objectMapper.readTree(responseEntity.getBody());
@@ -103,8 +110,6 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         int success = 0;
         int running = 0;
         int queued = 0;
-
-        System.out.println(root.size());
 
         JsonNode dagRuns = root.path("dag_runs");
 
