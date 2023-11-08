@@ -15,12 +15,15 @@ import java.util.Base64;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 @Service
 public class DagTriggerServiceImpl implements DagTriggerService {
 
     private Queue<String> dagRunQueue = new ConcurrentLinkedQueue<>();
     private boolean isDagProcessing = false;
+    private final Semaphore semaphore = new Semaphore(1); // Semaphore with 1 permit
+
 
     @Override
     public void addToTheQueue(String dagId) throws JsonProcessingException, InterruptedException {
@@ -29,19 +32,19 @@ public class DagTriggerServiceImpl implements DagTriggerService {
     }
 
     public void queueProcess() throws JsonProcessingException, InterruptedException {
-
         if (!isDagProcessing) {
             isDagProcessing = true;
             while (!dagRunQueue.isEmpty()) {
                 String dagId = dagRunQueue.poll();
+                semaphore.acquire(); // Acquire the permit, blocks if not available
                 if (!isDagRunning(dagId)) {
                     triggerDag(dagId);
                 }
+                semaphore.release(); // Release the permit after processing the request
                 Thread.sleep(1000);
             }
             isDagProcessing = false;
         }
-
     }
 
     public JsonNode triggerDag(String dagId) throws JsonProcessingException {
