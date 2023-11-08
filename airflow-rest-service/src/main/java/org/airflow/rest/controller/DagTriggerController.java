@@ -19,8 +19,8 @@ public class DagTriggerController {
     }
 
     @GetMapping(path = "/dagId/{uri}")
-    public String triggerDag(@PathVariable String uri) throws JsonProcessingException {
-        dagTriggerService.triggerDag(uri);
+    public String triggerDag(@PathVariable String uri) throws JsonProcessingException, InterruptedException {
+        dagTriggerService.addToTheQueue(uri);
         return "TRIGRED";
     }
 
