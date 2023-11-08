@@ -1,0 +1,29 @@
+@Service
+        public class DagTriggerServiceImpl implements DagTriggerService {
+
+            @Override
+            public void triggerDag(String dagId) throws JsonProcessingException {
+
+                String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                String authHeader = "Basic " + Base64.getEncoder().encodeToString("admin:admin".getBytes());
+                headers.set("Authorization", authHeader);
+
+                RestTemplate restTemplate = new RestTemplate();
+                HttpEntity<String> request = new HttpEntity<>("{}", headers);
+
+                System.out.println(request);
+
+                ResponseEntity<String> responseEntity = restTemplate.postForEntity(airflowApiUrl, headers, String.class);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode root = objectMapper.readTree(responseEntity.getBody());
+
+                System.out.println(root);
+
+            }
+
+        }
