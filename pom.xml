@@ -8,13 +8,13 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-
     <groupId>org.airflow.manager</groupId>
     <artifactId>airflow-application-manager</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Airflow-Manager</name>
     <modules>
         <module>airflow-rest-service</module>
+        <module>airflow-async-queue-service</module>
     </modules>
 
     <properties>
