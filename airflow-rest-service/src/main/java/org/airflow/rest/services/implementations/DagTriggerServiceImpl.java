@@ -93,8 +93,11 @@ public class DagTriggerServiceImpl implements DagTriggerService {
 
         JsonNode dagRuns = root.path("dag_runs");
 
+        /*System.out.println(dagRuns);*/
+
         for (JsonNode dagRun : dagRuns) {
             String state = dagRun.get("state").textValue();
+            /*System.out.println(state);*/
 
             if (state.trim().equalsIgnoreCase("running")
                     || state.trim().equalsIgnoreCase("queued"))
