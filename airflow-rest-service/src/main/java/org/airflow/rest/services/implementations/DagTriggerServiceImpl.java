@@ -4,22 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.airflow.rest.services.DagTriggerService;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 
 @Service
 public class DagTriggerServiceImpl implements DagTriggerService {
 
-    private Queue<String> dagRunQueue = new ConcurrentLinkedQueue<>();
+    String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
+
+    private final Queue<String> dagRunQueue = new ConcurrentLinkedQueue<>();
     private boolean isDagProcessing = false;
 
     @Override
@@ -35,18 +36,18 @@ public class DagTriggerServiceImpl implements DagTriggerService {
             while (!dagRunQueue.isEmpty()) {
                 String dagId = dagRunQueue.poll();
                 if (!isDagRunning(dagId)) {
-                    triggerDag(dagId);
+                    boolean success = triggerDag(dagId);
+                    if (success) {
+                        continue;
+                    }
                 }
                 Thread.sleep(1000);
             }
             isDagProcessing = false;
         }
-
     }
 
-    public JsonNode triggerDag(String dagId) throws JsonProcessingException {
-
-        String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
+    public boolean triggerDag(String dagId) throws JsonProcessingException {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -56,10 +57,6 @@ public class DagTriggerServiceImpl implements DagTriggerService {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
-
-        System.out.println(request);
-
-        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
 
@@ -68,20 +65,16 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         String state = root.get("state").textValue();
         String dagRunId = root.get("dag_run_id").textValue();
 
-        System.out.println(root);
+        // System.out.println(root);
         System.out.println(state);
-        System.out.println(dagRunId);
+        System.out.println("##########" + dagRunId);
         boolean isRunning = isDagRunning(dagId);
         System.out.println("Is Running: " + isRunning);
 
-        return root;
-
+        return state.trim().equalsIgnoreCase("running") || state.trim().equalsIgnoreCase("queued");
     }
 
     boolean isDagRunning(String dagId) throws JsonProcessingException {
-
-
-        String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -92,26 +85,22 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
-
-        ResponseEntity<String> responseEntity = restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
+        ResponseEntity<String> responseEntity = restTemplate
+                .exchange(airflowApiUrl, HttpMethod.GET, request, String.class, Map.of("dagId", dagId));
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = objectMapper.readTree(responseEntity.getBody());
 
-        int failed = 0;
-        int success = 0;
-        int running = 0;
-        int queued = 0;
-
-        System.out.println(root.size());
-
         JsonNode dagRuns = root.path("dag_runs");
+
+        /*System.out.println(dagRuns);*/
 
         for (JsonNode dagRun : dagRuns) {
             String state = dagRun.get("state").textValue();
+            /*System.out.println(state);*/
 
-            if (state.trim().equalsIgnoreCase("running"))
+            if (state.trim().equalsIgnoreCase("running")
+                    || state.trim().equalsIgnoreCase("queued"))
                 return true;
         }
 
