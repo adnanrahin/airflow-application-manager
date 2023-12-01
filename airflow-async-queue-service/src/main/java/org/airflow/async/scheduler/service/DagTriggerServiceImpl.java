@@ -17,7 +17,7 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String authHeader = "Basic " + Base64.getEncoder().encodeToString("api_user:api_user".getBytes());
+        String authHeader = "Basic " + Base64.getEncoder().encodeToString("airflow_apex:*Apex1971#".getBytes());
         headers.set("Authorization", authHeader);
 
         RestTemplate restTemplate = new RestTemplate();

@@ -38,7 +38,7 @@ public class DagTriggerController {
         boolean isRunning = dagRunService.isDagRunning(dagId);
         if (isRunning) {
             dagQueue.add(dagId);
-            return "Dag is RUNNING, it will be in queue";
+            return "Dag is RUNNING, it will be in queue, there are" + dagQueue.size() + " number of process in queue";
         } else {
             dagTriggerService.triggerDag(dagId);
             return "DAG Triggered!";
@@ -46,12 +46,13 @@ public class DagTriggerController {
     }
 
     @Scheduled(fixedRate = 2000)
+    @GetMapping
     public void triggerDagRun() {
         boolean isRunning = dagRunService.isDagRunning(this.dagId);
-        if (isRunning) {
-            dagQueue.add(this.dagId);
-        } else {
-            dagTriggerService.triggerDag(this.dagQueue.poll());
+        if (!isRunning) {
+            String triggerId = this.dagQueue.poll();
+            System.out.println(triggerId + "_" + this.dagQueue.size());
+            dagTriggerService.triggerDag(triggerId);
         }
     }
 }
