@@ -29,7 +29,7 @@ public class DagRunServiceImpl implements DagRunService {
 
     @Override
     public Boolean isDagRunning(String dagId) {
-        return !dagRunRepository.findRunningDag(dagId).isEmpty();
+        return !dagRunRepository.findRunningDag(dagId, "running").isEmpty();
     }
 
 }
