@@ -12,8 +12,9 @@ import java.util.List;
 @Repository
 public interface DagRunRepository extends JpaRepository<DagRunEntity, String> {
     @Query(
-            value = "SELECT state FROM dag_run WHERE state = :running AND dag_run.dag_id = :dag_id",
+            value = "SELECT state FROM dag_run WHERE state = CAST('running' AS VARCHAR)" +
+                    " AND dag_run.dag_id = CAST(:dag_id AS VARCHAR)",
             nativeQuery = true
     )
-    List<String> findRunningDag(@Param("dag_id") String dag_id, @Param("running") String running);
+    List<String> findRunningDag(@Param("dag_id") String dagId);
 }
