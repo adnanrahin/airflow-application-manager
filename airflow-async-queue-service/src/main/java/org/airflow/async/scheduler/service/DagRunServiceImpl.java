@@ -28,7 +28,8 @@ public class DagRunServiceImpl implements DagRunService {
     }
 
     @Override
-    public DagRunEntity save(DagRunEntity dagRun) {
-        return dagRunRepository.save(dagRun);
+    public Boolean isDagRunning(String dagId) {
+        return !dagRunRepository.findRunningDag(dagId).isEmpty();
     }
+
 }

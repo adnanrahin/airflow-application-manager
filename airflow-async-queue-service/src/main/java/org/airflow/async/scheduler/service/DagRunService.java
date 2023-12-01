@@ -10,6 +10,6 @@ public interface DagRunService {
 
     DagRunEntity findById(String dagId);
 
-    DagRunEntity save(DagRunEntity dagRun);
+    Boolean isDagRunning(String dagId);
 
 }
