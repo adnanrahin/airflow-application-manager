@@ -12,7 +12,7 @@ public class DagTriggerServiceImpl implements DagTriggerService {
     @Override
     public void triggerDag(String dagId)  {
 
-        String airflowApiUrl = "http://localhost:18080/api/v1/dags/{dagId}/dagRuns";
+        String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -23,7 +23,7 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class);
+        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
     }
 }
 
