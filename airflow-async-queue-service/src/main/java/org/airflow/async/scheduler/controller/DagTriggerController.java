@@ -32,6 +32,10 @@ public class DagTriggerController {
         this.dagId = dagId;
     }
 
+    public Queue<String> getDagQueue() {
+        return dagQueue;
+    }
+
     @RequestMapping(path = "/dagId/{dagId}", method = {RequestMethod.GET, RequestMethod.PUT})
     public String triggerDag(@PathVariable String dagId) {
         setDagId(dagId);
@@ -45,14 +49,4 @@ public class DagTriggerController {
         }
     }
 
-    @Scheduled(fixedRate = 2000)
-    @GetMapping
-    public void triggerDagRun() {
-        boolean isRunning = dagRunService.isDagRunning(this.dagId);
-        if (!isRunning) {
-            String triggerId = this.dagQueue.poll();
-            System.out.println(triggerId + "_" + this.dagQueue.size());
-            dagTriggerService.triggerDag(triggerId);
-        }
-    }
 }
