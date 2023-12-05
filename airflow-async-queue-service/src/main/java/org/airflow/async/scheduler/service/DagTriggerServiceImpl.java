@@ -10,20 +10,27 @@ import java.util.Base64;
 public class DagTriggerServiceImpl implements DagTriggerService {
 
     @Override
-    public void triggerDag(String dagId)  {
+    public ResponseEntity<Object> triggerDag(String dagId) {
+
+        if (dagId == null) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body("dagId is Null");
+        }
 
         String airflowApiUrl = "http://192.168.1.235:18080/api/v1/dags/{dagId}/dagRuns";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String authHeader = "Basic " + Base64.getEncoder().encodeToString("airflow_apex:*Apex1971#".getBytes());
+        String authHeader = "Basic " + Base64.getEncoder().encodeToString("api_user:api_user".getBytes());
         headers.set("Authorization", authHeader);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
-        restTemplate.postForEntity(airflowApiUrl, request, String.class, dagId);
+        ResponseEntity<Object> response = restTemplate.postForEntity(airflowApiUrl, request, Object.class, dagId);
+
+        return ResponseEntity.ok(response.getBody());
     }
 }
 

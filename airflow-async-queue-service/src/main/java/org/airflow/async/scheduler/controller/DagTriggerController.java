@@ -3,7 +3,8 @@ package org.airflow.async.scheduler.controller;
 import org.airflow.async.scheduler.service.DagRunService;
 import org.airflow.async.scheduler.service.DagTriggerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Queue;
@@ -19,7 +20,8 @@ public class DagTriggerController {
     private final DagRunService dagRunService;
 
     @Autowired
-    public DagTriggerController(DagTriggerService dagTriggerService, DagRunService dagRunService) {
+    public DagTriggerController(DagTriggerService dagTriggerService,
+                                DagRunService dagRunService) {
         this.dagTriggerService = dagTriggerService;
         this.dagRunService = dagRunService;
     }
@@ -37,15 +39,15 @@ public class DagTriggerController {
     }
 
     @RequestMapping(path = "/dagId/{dagId}", method = {RequestMethod.GET, RequestMethod.PUT})
-    public String triggerDag(@PathVariable String dagId) {
+    public ResponseEntity<Object> triggerDag(@PathVariable String dagId) {
         setDagId(dagId);
         boolean isRunning = dagRunService.isDagRunning(dagId);
         if (isRunning) {
             dagQueue.add(dagId);
-            return "Dag is RUNNING, it will be in queue, there are" + dagQueue.size() + " number of process in queue";
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body("Dag is added to the QUEUE: " + dagQueue.size());
         } else {
-            dagTriggerService.triggerDag(dagId);
-            return "DAG Triggered!";
+            return ResponseEntity.ok(dagTriggerService.triggerDag(dagId));
         }
     }
 
