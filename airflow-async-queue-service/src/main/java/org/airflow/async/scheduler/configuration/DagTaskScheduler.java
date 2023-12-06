@@ -25,10 +25,13 @@ public class DagTaskScheduler {
 
     @Scheduled(fixedRate = 2000)
     public void triggerDagRun() {
-        boolean isRunning = dagRunService.isDagRunning(dagTriggerController.getDagId());
-        if (!isRunning) {
-            String triggerId = dagTriggerController.getDagQueue().poll();
-            dagTriggerService.triggerDag(triggerId);
+        for (String key : dagTriggerController.getDagMap().keySet()) {
+            boolean isRunning = dagRunService.isDagRunning(key);
+            if (!isRunning) {
+                String triggerId = dagTriggerController.getDagMap().get(key).poll();
+                System.out.println("Triggering DAG: " + triggerId);
+                dagTriggerService.triggerDag(triggerId);
+            }
         }
     }
 }

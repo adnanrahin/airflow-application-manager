@@ -7,7 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @RestController
@@ -15,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DagTriggerController {
 
     private String dagId;
-    private final Queue<String> dagQueue = new ConcurrentLinkedQueue<>();
+    private final Map<String, Queue<String>> dagMap = new ConcurrentHashMap<>();
     private final DagTriggerService dagTriggerService;
     private final DagRunService dagRunService;
 
@@ -34,8 +38,8 @@ public class DagTriggerController {
         this.dagId = dagId;
     }
 
-    public Queue<String> getDagQueue() {
-        return dagQueue;
+    public Map<String, Queue<String>> getDagMap() {
+        return dagMap;
     }
 
     @RequestMapping(path = "/dagId/{dagId}", method = {RequestMethod.GET, RequestMethod.PUT})
@@ -43,9 +47,13 @@ public class DagTriggerController {
         setDagId(dagId);
         boolean isRunning = dagRunService.isDagRunning(dagId);
         if (isRunning) {
-            dagQueue.add(dagId);
+            if (!dagMap.containsKey(dagId)) {
+                dagMap.put(dagId, new ConcurrentLinkedQueue<>());
+            }
+            int queuePollSize = dagMap.get(dagId).size();
+            dagMap.get(dagId).add(dagId);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body("Dag is added to the QUEUE: " + dagQueue.size());
+                    .body("Dag is added to the QUEUE: " + dagMap.get(dagId).size());
         } else {
             return ResponseEntity.ok(dagTriggerService.triggerDag(dagId));
         }
