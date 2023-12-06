@@ -50,7 +50,6 @@ public class DagTriggerController {
             if (!dagMap.containsKey(dagId)) {
                 dagMap.put(dagId, new ConcurrentLinkedQueue<>());
             }
-            int queuePollSize = dagMap.get(dagId).size();
             dagMap.get(dagId).add(dagId);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body("Dag is added to the QUEUE: " + dagMap.get(dagId).size());
