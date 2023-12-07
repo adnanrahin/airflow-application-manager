@@ -8,16 +8,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class DagTriggerServiceImpl implements DagTriggerService {
 
     @Override
-    public ResponseEntity<Object> triggerDag(String dagId) {
-
-        Map<String, Object> dagConf = new HashMap<>();
-
-        dagConf.put("file_name_1", "OptServiceExtractData.csv");
+    public ResponseEntity<Object> triggerDag(String dagId, Optional<Map<String, Map<String, Object>>> requestBody) {
 
         if (dagId == null) {
             return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -33,20 +30,19 @@ public class DagTriggerServiceImpl implements DagTriggerService {
         headers.set("Authorization", authHeader);
 
         try {
-            // Convert the map to a JSON string
-            ObjectMapper objectMapper = new ObjectMapper();
-            String dagConfJson = objectMapper.writeValueAsString(dagConf);
 
-            // Construct the request body with DAG configuration
-            String requestBody = "{\"conf\": " + dagConfJson + "}";
-            HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String dagConfJson = objectMapper.writeValueAsString(requestBody.get().get("conf"));
+
+            String requestBodyName = "{\"conf\": " + dagConfJson + "}";
+            HttpEntity<String> request = new HttpEntity<>(requestBodyName, headers);
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Object> response = restTemplate.postForEntity(airflowApiUrl, request, Object.class, dagId);
 
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
-            // Handle exception (e.g., JSON serialization error)
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing DAG configuration");
         }
     }
