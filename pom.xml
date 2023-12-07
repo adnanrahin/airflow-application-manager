@@ -15,6 +15,7 @@
     <modules>
         <module>airflow-rest-service</module>
         <module>airflow-async-queue-service</module>
+        <module>airflow-database-service</module>
     </modules>
 
     <properties>

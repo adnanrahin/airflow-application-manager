@@ -8,10 +8,11 @@
     </parent>
 
     <groupId>org.airflow.async.scheduler</groupId>
-    <artifactId>airflow-async-queue-service</artifactId>
+    <artifactId>airflow-database-service</artifactId>
     <packaging>jar</packaging>
 
-    <name>airflow-async-queue-service</name>
+    <name>airflow-database-service</name>
+    <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -58,5 +59,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
