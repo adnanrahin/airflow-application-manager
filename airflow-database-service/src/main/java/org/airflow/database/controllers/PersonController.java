@@ -31,19 +31,16 @@ public class PersonController {
 
         String firstName = requestBody.getAsString("first_name");
         String lastName = requestBody.getAsString("last_name");
+        String confObject = requestBody.getAsString("conf");
+        System.out.println(confObject);
 
         Person person = new Person();
         person.setFirstName(firstName);
         person.setLastName(lastName);
-        Object confObject = requestBody.get("conf");
 
-        if (confObject instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> confMap = (Map<String, Object>) confObject;
-            person.setPersonInfo(confMap);
-        } else {
-            throw new RuntimeException("Object Type Mismatch");
-        }
+        Map<String, Object> confMap = new JSONObjectConverter().convertToEntityAttribute(confObject);
+        person.setPersonInfo(confMap);
+
 
         personService.save(person);
 
