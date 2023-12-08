@@ -3,43 +3,40 @@ package org.airflow.database.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-@Converter
+@Converter(autoApply = true)
 public class JSONObjectConverter implements AttributeConverter<Map<String, Object>, String> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Object> customerInfo) {
 
-        String customerInfoJson = null;
+
+    public String convertToDatabaseColumn(Map<String, Object> attributeValue) {
         try {
-            customerInfoJson = objectMapper.writeValueAsString(customerInfo);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            return objectMapper.writeValueAsString(attributeValue);
+        } catch (JsonProcessingException ex) {
+            // handle exception
+            return null;
         }
-
-        return customerInfoJson;
     }
 
     @Override
-    public Map<String, Object> convertToEntityAttribute(String customerInfoJSON) {
 
-        Map<String, Object> customerInfo = null;
+
+    public Map<String, Object> convertToEntityAttribute(String dbData) {
         try {
-            customerInfo = objectMapper.readValue(customerInfoJSON,
-                    new TypeReference<HashMap<String, Object>>() {
-                    });
-        } catch (IOException e) {
-           e.printStackTrace();
+            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {
+            });
+        } catch (IOException ex) {
+            // handle exception
+            return null;
         }
-
-        return customerInfo;
     }
 }
 

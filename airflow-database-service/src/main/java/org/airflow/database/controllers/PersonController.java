@@ -35,14 +35,17 @@ public class PersonController {
         Person person = new Person();
         person.setFirstName(firstName);
         person.setLastName(lastName);
-        Map<String, Object> confMap = (Map<String, Object>) requestBody.get("conf");
+        Object confObject = requestBody.get("conf");
 
-        person.setPersonInfo(confMap);
+        if (confObject instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> confMap = (Map<String, Object>) confObject;
+            person.setPersonInfo(confMap);
+        } else {
+            throw new RuntimeException("Object Type Mismatch");
+        }
 
         personService.save(person);
-
-
-        System.out.println(confMap.get("file_name_1"));
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("DATA PRINTED");
     }
