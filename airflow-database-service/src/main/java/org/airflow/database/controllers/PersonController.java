@@ -27,24 +27,9 @@ public class PersonController {
     private PersonService personService;
 
     @PostMapping("/personinfo")
-    public ResponseEntity<Object> savePersonInfo(@RequestBody JSONObject requestBody) throws ParseException, JsonProcessingException {
+    public ResponseEntity<?> savePersonInfo(@RequestBody JSONObject requestBody) {
 
-        String firstName = requestBody.getAsString("first_name");
-        String lastName = requestBody.getAsString("last_name");
-        String confObject = requestBody.getAsString("conf");
-        System.out.println(confObject);
-
-        Person person = new Person();
-        person.setFirstName(firstName);
-        person.setLastName(lastName);
-
-        Map<String, Object> confMap = new JSONObjectConverter().convertToEntityAttribute(confObject);
-        person.setPersonInfo(confMap);
-
-
-        personService.save(person);
-
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("DATA PRINTED");
+        return ResponseEntity.ok(personService.save(requestBody));
     }
 
 }

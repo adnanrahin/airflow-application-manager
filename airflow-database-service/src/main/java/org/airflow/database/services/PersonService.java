@@ -1,13 +1,14 @@
 package org.airflow.database.services;
 
+import net.minidev.json.JSONObject;
 import org.airflow.database.entities.Person;
 
 import java.util.List;
 
 public interface PersonService {
 
-    public List<Person> findAllPerson();
+    List<Person> findAllPerson();
 
-    public void save(Person person);
+    Person save(JSONObject requestBody);
 
 }
