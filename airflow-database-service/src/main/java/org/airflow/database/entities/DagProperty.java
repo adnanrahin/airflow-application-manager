@@ -2,13 +2,17 @@ package org.airflow.database.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.hibernate.annotations.Type;
+import org.airflow.database.util.JSONObjectConverter;
+import org.hibernate.annotations.ColumnTransformer;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Map;
 
 @Entity
-@Table(name = "dag_property")
+@Table(name = "dag_property", schema = "public")
 public class DagProperty {
 
     @Id
@@ -19,22 +23,24 @@ public class DagProperty {
     @Column(name = "dag_id")
     private String dagId;
 
-    //@Type(type = "jsonb")
-    @Column(name = "system_info", columnDefinition = "jsonb")
-    private String systemInfo;
+    @NonNull
+    @Column(name = "dag_conf", columnDefinition = "json")
+    @Convert(converter = JSONObjectConverter.class)
+    @ColumnTransformer(write = "?::json")
+    private Map<String, Object> dagRequestBody;
 
-    @Column(name = "system_log_time")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "log_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date systemLogTime;
+    private LocalDateTime logTime;
 
     public DagProperty() {
     }
 
-    public DagProperty(String dagId, String systemInfo, Date systemLogTime) {
+    public DagProperty(Long dagPropertyId, String dagId, @NonNull Map<String, Object> dagRequestBody, LocalDateTime logTime) {
+        this.dagPropertyId = dagPropertyId;
         this.dagId = dagId;
-        this.systemInfo = systemInfo;
-        this.systemLogTime = systemLogTime;
+        this.dagRequestBody = dagRequestBody;
+        this.logTime = logTime;
     }
 
     public Long getDagPropertyId() {
@@ -53,19 +59,20 @@ public class DagProperty {
         this.dagId = dagId;
     }
 
-    public String getSystemInfo() {
-        return systemInfo;
+    @NonNull
+    public Map<String, Object> getDagRequestBody() {
+        return dagRequestBody;
     }
 
-    public void setSystemInfo(String systemInfo) {
-        this.systemInfo = systemInfo;
+    public void setDagRequestBody(@NonNull Map<String, Object> dagRequestBody) {
+        this.dagRequestBody = dagRequestBody;
     }
 
-    public Date getSystemLogTime() {
-        return systemLogTime;
+    public LocalDateTime getLogTime() {
+        return logTime;
     }
 
-    public void setSystemLogTime(Date systemLogTime) {
-        this.systemLogTime = systemLogTime;
+    public void setLogTime(LocalDateTime logTime) {
+        this.logTime = logTime;
     }
 }
